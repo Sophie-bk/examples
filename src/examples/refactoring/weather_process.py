@@ -1,35 +1,56 @@
-"""This script is badly written on purpose to demonstrate refactoring."""
-import csv, math
+"""Assignment 1 - Sophie Bieker"""
 
-def f(a):
-    t=[]
-    for i in a:
-        if float(i[1])>25:
-            t.append(float(i[1])*1.8+32)
+import csv
+import numpy as np
+
+OFFSET_C_TO_F = 32
+
+FACTOR_C_TO_F = 1.8
+
+TEMP_THRESHOLD_C = 25
+
+PATH_WEATHER_DATA = "./../../../data/weather_data.csv"
+
+
+def change_to_fahrenheit(celsius):
+    """
+    This function changes the temperature above 25°C from celsius to fahrenheit
+    """
+    temps = []
+    for i in celsius:
+        if float(i[1]) > TEMP_THRESHOLD_C:
+            temps.append(float(i[1]) * FACTOR_C_TO_F + OFFSET_C_TO_F)
         else:
-            t.append(float(i[1]))
-    return t
-
-def g(a):
-    s=0
-    for i in a:
-        s+=i
-    return s
+            temps.append(float(i[1]))
+    return temps
 
 
-r=open('./../../../data/weather_data.csv')
-d=list(csv.reader(r))
-r.close()
-d=d[1:]
-x=[]
-for i in d:
-    x.append([i[0],i[1],i[2],i[3],i[4]])
-y=f(x)
-z=g(y)
-print('sum',z)
-print('avg',z/(len(y) if len(y) else 1))
-ws=0
-for i in d:
-    u=float(i[3]); v=float(i[4])
-    ws+=math.sqrt(u*u+v*v)
-print('wind',ws/len(d))
+# read data set
+file = open(PATH_WEATHER_DATA)
+ds = list(csv.reader(file))
+file.close()
+ds = ds[1:]  # start from second line
+data = []  # create empty list
+for i in ds:
+    data.append([i[0], i[1], i[2], i[3], i[4]])
+
+temp = change_to_fahrenheit(data)
+total_temp = np.sum(temp)
+average_temp = np.mean(temp)
+print("sum of the temperatures:", total_temp)
+print("average temperature:", average_temp)
+
+def wind(ds):
+    """
+    This function calculates the wind speed
+    """
+    ws = 0
+    for i in ds:
+        u = float(i[3])
+        v = float(i[4])
+        ws += np.sqrt(u**2 + v**2)
+        wind_speed = ws / len(ds)
+    return wind_speed
+
+wind_speed = wind(ds)
+print("wind speed:", wind_speed)
